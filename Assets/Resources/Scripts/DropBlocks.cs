@@ -76,10 +76,10 @@ public class DropBlocks : MonoBehaviour
 
 				foreach (GameObject block in blocks) {
 					foreach (Transform t in block.transform) {
-						if (t.position.y > -0.2f + (i - 1) * 0.08f - 0.02f && t.position.y < -0.2f + (i - 1) * 0.08f + 0.02f) { 
+						if (t.position.y > BlockGenerator.undery + (i - 1) * BlockGenerator.move_amount - 0.02f && t.position.y < BlockGenerator.undery + (i - 1) * BlockGenerator.move_amount + 0.02f) { 
 							Destroy (t.gameObject);
 						} 
-						if (t.position.y > -0.2f + i * 0.08f - 0.02f) {
+						if (t.position.y > BlockGenerator.undery + i * BlockGenerator.move_amount - 0.02f) {
 							drop_blocks.Add (t);
 						}
 					}
@@ -88,7 +88,7 @@ public class DropBlocks : MonoBehaviour
 				if (drop_blocks.Count > 0) {
 					int times = 0;
 					while (times < 10) {
-						drop_blocks.ForEach ((b) => b.position -= new Vector3 (0f, 0.08f / (float)10, 0f));
+						drop_blocks.ForEach ((b) => b.position -= new Vector3 (0f, BlockGenerator.move_amount / (float)10, 0f));
 						yield return new WaitForSeconds (0.03f);
 						times++;
 					}
@@ -117,7 +117,7 @@ public class DropBlocks : MonoBehaviour
 	{
 		int i = 0;
 		while (i < 10) {
-			t.position -= new Vector3 (0f, 0.08f / (float)10, 0f);
+			t.position -= new Vector3 (0f, BlockGenerator.move_amount / (float)10, 0f);
 			yield return new WaitForSeconds (1f);
 			i++;
 		}

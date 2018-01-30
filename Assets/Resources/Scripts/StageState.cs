@@ -12,7 +12,6 @@ public class StageState : MonoBehaviour
 	const int STAGE_SIZE_Y = 7;
 	const int STAGE_SIZE_Z = 8;
 
-	const float moveAmount = 0.08f;
 
 	public static string charPos = "forward";
 	//自分がどこに今いるのか
@@ -146,19 +145,19 @@ public class StageState : MonoBehaviour
 	{
 		switch (direction) {
 		case "drop":
-			GameController.nowBlock.transform.position += new Vector3 (0f, -moveAmount, 0f);
+			GameController.nowBlock.transform.position += new Vector3 (0f, -BlockGenerator.move_amount, 0f);
 			break;
 		case "left":
-			GameController.nowBlock.transform.position += new Vector3 (-moveAmount, 0f, 0f);
+			GameController.nowBlock.transform.position += new Vector3 (-BlockGenerator.move_amount, 0f, 0f);
 			break;
 		case "right":
-			GameController.nowBlock.transform.position += new Vector3 (moveAmount, 0f, 0f);
+			GameController.nowBlock.transform.position += new Vector3 (BlockGenerator.move_amount, 0f, 0f);
 			break;
 		case "up":
-			GameController.nowBlock.transform.position += new Vector3 (0f, 0f, moveAmount);
+			GameController.nowBlock.transform.position += new Vector3 (0f, 0f, BlockGenerator.move_amount);
 			break;
 		case "down":
-			GameController.nowBlock.transform.position += new Vector3 (0f, 0f, -moveAmount);
+			GameController.nowBlock.transform.position += new Vector3 (0f, 0f, -BlockGenerator.move_amount);
 			break;
 		case "roll_right":
 			Vector3 centerPos = new Vector3 ();

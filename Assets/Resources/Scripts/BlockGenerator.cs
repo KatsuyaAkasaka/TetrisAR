@@ -20,6 +20,9 @@ public class BlockGenerator : MonoBehaviour
 
 	public static string nowBlockName = "";
 
+	public static float upy, undery;
+	public static float move_amount;
+
 
 	// Use this for initialization
 	void Start ()
@@ -35,6 +38,9 @@ public class BlockGenerator : MonoBehaviour
 		if (GameController.isGameStarted && !setup) {
 			stage = GameObject.FindGameObjectWithTag ("stage");
 			generateVec = stage.transform.Find ("generatePos").gameObject.transform.position;
+			upy = stage.transform.Find ("generatePos").position.y;
+			undery = stage.transform.Find ("bottomPos").position.y;
+			move_amount = (upy - undery) / 5;
 			setup = true;
 		}
 		if (GameController.isGameStarted && DropBlocks.confirmed) {		//ステージが確定したらinterval秒後に生成

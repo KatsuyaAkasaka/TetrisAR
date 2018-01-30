@@ -38,6 +38,7 @@ public class CreateStage : MonoBehaviour {
 				Vector3 floorpos = go.transform.position;
 				GameObject.Instantiate (stage, floorpos + new Vector3 (0f, 0.1f, 0f), Quaternion.identity);
 				GameController.readyToStart = true;
+				Debug.Log ("called");
 			}
 		}
 	}

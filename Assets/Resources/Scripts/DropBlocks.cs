@@ -3,98 +3,124 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class DropBlocks : MonoBehaviour {
+public class DropBlocks : MonoBehaviour
+{
 
-	const float drop_interval = 2f;		//ブロックの落ちるスピード
-	float timer = 0f;		//タイマー
-	const int STAGE_SIZE_X = 8;		//stageのサイズ(8,7,8)
+	const float drop_interval = 1f;
+	const float next_block_interval = 0.3f;
+	//ブロックの落ちるスピード
+	private float timer = 0f;
+	//タイマー
+	const int STAGE_SIZE_X = 8;
+	//stageのサイズ(8,7,8)
 	const int STAGE_SIZE_Y = 7;
 	const int STAGE_SIZE_Z = 8;
-	Vector3 down_amount = new Vector3(0f, 0.08f, 0f);
-	private GameObject test;
-	private Text t;
+
+	bool isRunning = false;
 
 
 
-	public static bool confirmed = true;		//stageが確定したらtrue。それによって新しくブロックが生成されたらfalse
+	public static bool confirmed = true;
+	//blockが消え終わり、確定したらtrue。それによって新しくブロックが生成されたらfalse
+	private bool finished_this_obj = false;
+	//objectが置かれてそれが確定したらtrue
+	public static bool finish_put = true;
+	//finished_this_objのstatic変数
 
-	void Start()
+
+	void Start ()
 	{
-		test = GameObject.Find ("abletodrop");
-		t = test.GetComponent<Text> ();
 	}
+
 
 	// Update is called once per frame
-	void Update () 
+	void Update ()
 	{
-		if (!confirmed) {
-			timer += Time.deltaTime;
-			if (timer > drop_interval) {		//drop_intervalごとにdrop_down
-				drop_down ();
-				timer = 0f;
-			}
-		}
-	}
-
-
-	//drop_down()に関数が入らないのでUpdateが読み込まれていない？
-	//ステージを全探索して、現在落下中のブロックを見つけたら一つ下に落とす
-	void drop_down()
-	{
-		int[,,] tmp_stage = new int[STAGE_SIZE_X,STAGE_SIZE_Y,STAGE_SIZE_Z];
-		tmp_stage = StageState.stage;
-
-		bool able_to_drop = drop_or_not();
-
-
-		//何かに引っかかったら、2を全て1にして確定。落とせたら、座標移動させる
-		if (able_to_drop) {
-			GameController.nowBlock.transform.position -= down_amount;
-		} else {
-			confirm_stage (tmp_stage);
-			confirmed = true;
-		} 
-		t.text = able_to_drop.ToString();
-			
-
-		//落とせたら、次のdrop_intervalまで暫定の2のままにさせておく
-	}
-
-
-	//2を1に書き換えて、ステージ情報を確定させる
-	void confirm_stage(int[,,] stage)
-	{
-		for (int i = 0; i < STAGE_SIZE_X; i++) {
-			for (int j = 0; j < STAGE_SIZE_Y; j++) {
-				for (int k = 0; k < STAGE_SIZE_Z; k++) {
-					if (StageState.stage [i, j, k] == 2) {
-						StageState.stage [i, j, k] = 1;
-					}
+		if (!finished_this_obj) {
+			if (!confirmed) {
+				timer += Time.deltaTime;
+				if (timer > drop_interval) {		//stage確定してからdrop_interval秒後にdrop_down
+					StartCoroutine (drop_down ());
+					timer = 0f;
 				}
 			}
 		}
 	}
 
 
-	//全探索させて、2をdropさせる。何かに引っかかってる場合はfalse。うまく落とせたらtrue
-	bool drop_or_not()
+	//ステージを全探索して、現在落下中のブロックを見つけたら一つ下に落とす
+	IEnumerator drop_down ()
 	{
-		//全探索
-		for (int i = 0; i < STAGE_SIZE_X; i++) {
-			for (int j = STAGE_SIZE_Y-1; j >= 0; j--) {
-				for (int k = 0; k < STAGE_SIZE_Z; k++) {
-					if (StageState.stage [i, j, k] == 2) {
-						if (StageState.stage [i, j + 1, k] == 1) {		//動かしてるブロックの下にすでにobjectがあった場合false
-							return false;
-						} else {
-							StageState.stage [i, j + 1, k] = 2;			//2をずらす
-							StageState.stage [i, j, k] = 0;
+		//落とせるかどうか確認
+		if (StageState.CouldMoveBlock ("drop")) {
+			StageState.MoveBlock ("drop");
+			yield return null;
+			//無理ぽならステージ確定させて、消せるrawを消して、このオブジェクトの動作を終了させる
+		} else {
+			if (isRunning)
+				yield break;
+			isRunning = true;
+			StageState.confirm_stage ();
+
+			finish_put = true;
+
+			List<int> filledlist = StageState.findFill ();
+
+			List<Transform> drop_blocks = new List<Transform> ();
+			GameObject[] blocks = GameObject.FindGameObjectsWithTag ("Block");
+			foreach (int i in filledlist) {
+				//システム的削除
+				StageState.DeleteRaw (i);
+
+				//物理的削除
+
+				foreach (GameObject block in blocks) {
+					foreach (Transform t in block.transform) {
+						if (t.position.y > -0.2f + (i - 1) * 0.08f - 0.02f && t.position.y < -0.2f + (i - 1) * 0.08f + 0.02f) { 
+							Destroy (t.gameObject);
+						} 
+						if (t.position.y > -0.2f + i * 0.08f - 0.02f) {
+							drop_blocks.Add (t);
 						}
 					}
 				}
+
+				if (drop_blocks.Count > 0) {
+					int times = 0;
+					while (times < 10) {
+						drop_blocks.ForEach ((b) => b.position -= new Vector3 (0f, 0.08f / (float)10, 0f));
+						yield return new WaitForSeconds (0.03f);
+						times++;
+					}
+					drop_blocks.Clear ();
+				}
+				yield return new WaitForSeconds (next_block_interval);
 			}
+
+			finished_this_obj = true;
+			confirmed = true;
+
+//			for (int i = 1; i < STAGE_SIZE_X-1; i ++){
+//				for (int j = 1; j < STAGE_SIZE_Y; j++){
+//					for (int k = 1; k < STAGE_SIZE_Z-1; k++){
+//						if(StageState.stage[i,j,k] != 0)
+//							Debug.Log(i + "," + j + "," + k + ", = " + StageState.stage[i,j,k]);
+//					}
+//				}
+//			}
+//			Debug.Log ("-------------------------------");
 		}
-		return true;
+
 	}
-		
+
+	IEnumerator drop_coroutin (Transform t)
+	{
+		int i = 0;
+		while (i < 10) {
+			t.position -= new Vector3 (0f, 0.08f / (float)10, 0f);
+			yield return new WaitForSeconds (1f);
+			i++;
+		}
+	}
+
 }

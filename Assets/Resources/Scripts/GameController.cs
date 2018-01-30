@@ -7,7 +7,7 @@ public class GameController : MonoBehaviour
 
 	public static bool isGameStarted = false;
 	//if game play started, true
-	public static bool readyToStart = true;
+	public static bool readyToStart = false;
 	//if stage created, true
 	//public GameObject text;
 	public static GameObject nowBlock;

@@ -16,6 +16,7 @@ public class BlockGenerator : MonoBehaviour
 	//生成されるブロックの位置
 
 	Vector3[] blockpos;
+	private bool setup = false;
 
 	public static string nowBlockName = "";
 
@@ -23,8 +24,7 @@ public class BlockGenerator : MonoBehaviour
 	// Use this for initialization
 	void Start ()
 	{
-		stage = (GameObject)Resources.Load ("Prefabs/Stage");
-		generateVec = stage.transform.Find ("generatePos").gameObject.transform.position;
+		
 	}
 
 
@@ -32,6 +32,11 @@ public class BlockGenerator : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
+		if (GameController.isGameStarted && !setup) {
+			stage = GameObject.FindGameObjectWithTag ("stage");
+			generateVec = stage.transform.Find ("generatePos").gameObject.transform.position;
+			setup = true;
+		}
 		if (GameController.isGameStarted && DropBlocks.confirmed) {		//ステージが確定したらinterval秒後に生成
 			timer += Time.deltaTime;
 			if (interval < timer) {		//時間になったら新たなブロック生成

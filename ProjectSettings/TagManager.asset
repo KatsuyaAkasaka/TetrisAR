@@ -6,6 +6,9 @@ TagManager:
   tags:
   - Floor
   - Block
+  - SmallBlock
+  - Center
+  - stage
   layers:
   - Default
   - TransparentFX

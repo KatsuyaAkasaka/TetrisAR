@@ -89,7 +89,7 @@ public class CreateStage : MonoBehaviour
 		newPlane.name = arPlaneAnchor.identifier;
 
 		//Vector3 floorpos = go.transform.position;
-		GameObject.Instantiate (stage, newPlane.transform.position, Quaternion.identity);
+		Instantiate (stage, newPlane.transform.position, Quaternion.identity);
 		GameController.readyToStart = true;
 
 		// 生成した平面オブジェクトをAnchorに合わせる

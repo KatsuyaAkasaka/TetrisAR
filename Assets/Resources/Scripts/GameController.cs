@@ -15,23 +15,21 @@ public class GameController : MonoBehaviour
 	public static Vector3[] nowBlockPos;
 
 
+
 	// Use this for initialization
-	void Start ()
-	{
-		
-	}
-	
-	// Update is called once per frame
-	void Update ()
-	{
-		
-	}
+//	void Start ()
+//	{
+//	}
+//	
+//	// Update is called once per frame
+//	void Update ()
+//	{
+//	}
 
 	public void OnClick ()
 	{
 		if (readyToStart) {
 			isGameStarted = true;
-			//text.SetActive (true);
 		}
 	}
 }
